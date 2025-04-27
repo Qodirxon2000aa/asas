@@ -15,7 +15,7 @@ const app = express();
 // O‘rta dasturlar
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 
 // Har bir so‘rovni log qilish
 app.use((req, res, next) => {

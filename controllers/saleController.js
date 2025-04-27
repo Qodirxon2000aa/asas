@@ -43,7 +43,7 @@ const createSale = async (req, res, next) => {
     const product = await Product.findById(productId);
     if (!product) {
       console.log('Maxsulot topilmadi:', productId);
-      return res.status(400).json({ message: 'Maxsulot topilmadi!' });
+      return res.status(404).json({ message: 'Maxsulot topilmadi!' });
     }
     if (product.quantity < quantity) {
       console.log('Zaxira yetarli emas:', product.quantity, 'so‘ralgan:', quantity);
