@@ -1,9 +1,17 @@
 const Product = require('../models/Product');
 
-// Get all products
+// Get all products or filter by barcode
 const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find();
+    const { barcode } = req.query;
+    let products;
+
+    if (barcode) {
+      products = await Product.find({ barcode });
+    } else {
+      products = await Product.find();
+    }
+
     res.status(200).json(products.map(product => ({
       id: product._id,
       name: product.name,
