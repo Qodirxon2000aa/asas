@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const mijozRoutes = require('./routes/mijozRoutes');
+const productRoutes = require('./routes/productRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const path = require('path');
 
@@ -27,6 +28,7 @@ connectDB();
 // Routes
 app.use('/users', userRoutes);
 app.use('/mijoz', mijozRoutes);
+app.use('/products', productRoutes);
 
 // Error Handler
 app.use(errorHandler);
