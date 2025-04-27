@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const mijozRoutes = require('./routes/mijozRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const path = require('path');
 
@@ -19,6 +20,7 @@ connectDB();
 
 // Routes
 app.use('/users', userRoutes);
+app.use('/mijoz', mijozRoutes);
 
 // Error Handler
 app.use(errorHandler);
