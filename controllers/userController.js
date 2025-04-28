@@ -1,9 +1,8 @@
-const User = require("../models/User");
-const path = require("path");
-const fs = require("fs").promises;
-const bcrypt = require("bcrypt");
+const User = require('../models/User');
+const path = require('path');
+const fs = require('fs');
 
-// Barcha foydalanuvchilarni olish
+// Get all users
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
@@ -13,102 +12,83 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-// Yangi foydalanuvchi yaratish
+// Create a user
 const createUser = async (req, res, next) => {
   try {
     const { username, password, role } = req.body;
     let avatarUrl = null;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: "Login va parol kiritilishi shart!" });
-    }
-
     if (req.file) {
       avatarUrl = `/uploads/${req.file.filename}`;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = new User({
       username,
-      password: hashedPassword,
+      password, // Note: In production, hash the password
       role,
       avatarUrl,
     });
 
     await user.save();
-    res.status(201).json({ message: "Foydalanuvchi muvaffaqiyatli yaratildi!" });
+    res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ message: "Bu login allaqachon ishlatilgan!" });
-    }
     next(error);
   }
 };
 
-// Foydalanuvchini yangilash
+// Update a user
 const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { username, password, role } = req.body;
-    let avatarUrl = null;
+    let avatarUrl = req.body.avatarUrl || null;
 
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "Foydalanuvchi topilmadi!" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     if (req.file) {
+      // Delete old avatar if it exists
       if (user.avatarUrl) {
-        const oldAvatarPath = path.join(__dirname, "..", user.avatarUrl);
-        try {
-          await fs.unlink(oldAvatarPath);
-        } catch (err) {
-          console.warn("Eski avatar o‘chirilmadi:", err);
+        const oldAvatarPath = path.join(__dirname, '..', user.avatarUrl);
+        if (fs.existsSync(oldAvatarPath)) {
+          fs.unlinkSync(oldAvatarPath);
         }
       }
       avatarUrl = `/uploads/${req.file.filename}`;
-    } else {
-      avatarUrl = user.avatarUrl;
     }
 
     user.username = username || user.username;
-    if (password) {
-      user.password = await bcrypt.hash(password, 10);
-    }
+    user.password = password || user.password; // Note: In production, hash the password
     user.role = role || user.role;
     user.avatarUrl = avatarUrl;
 
     await user.save();
-    res.status(200).json({ message: "Foydalanuvchi muvaffaqiyatli yangilandi!" });
+    res.status(200).json({ message: 'User updated successfully' });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ message: "Bu login allaqachon ishlatilgan!" });
-    }
     next(error);
   }
 };
 
-// Foydalanuvchini o‘chirish
+// Delete a user
 const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "Foydalanuvchi topilmadi!" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     if (user.avatarUrl) {
-      const avatarPath = path.join(__dirname, "..", user.avatarUrl);
-      try {
-        await fs.unlink(avatarPath);
-      } catch (err) {
-        console.warn("Avatar o‘chirilmadi:", err);
+      const avatarPath = path.join(__dirname, '..', user.avatarUrl);
+      if (fs.existsSync(avatarPath)) {
+        fs.unlinkSync(avatarPath);
       }
     }
 
     await User.findByIdAndDelete(id);
-    res.status(200).json({ message: "Foydalanuvchi muvaffaqiyatli o‘chirildi!" });
+    res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
     next(error);
   }
