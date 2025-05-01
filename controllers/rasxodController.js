@@ -6,6 +6,7 @@ const getRasxodlar = async (req, res, next) => {
     const rasxodlar = await Rasxod.find();
     res.status(200).json(rasxodlar);
   } catch (error) {
+    console.error("Get all expenses error:", error);
     next(error);
   }
 };
@@ -16,7 +17,7 @@ const createRasxod = async (req, res, next) => {
     const { nomi, summa, sana } = req.body;
 
     // Validation
-    if (!nomi || !summa || !sana) {
+    if (!nomi || summa == null || !sana) {
       return res.status(400).json({ message: 'Nomi, summa va sana majburiy!' });
     }
 
@@ -29,6 +30,7 @@ const createRasxod = async (req, res, next) => {
     await rasxod.save();
     res.status(201).json({ message: 'Rasxod muvaffaqiyatli qo‘shildi!', rasxod });
   } catch (error) {
+    console.error("Create expense error:", error);
     next(error);
   }
 };
@@ -40,7 +42,7 @@ const updateRasxod = async (req, res, next) => {
     const { nomi, summa, sana } = req.body;
 
     // Validation
-    if (!nomi || !summa || !sana) {
+    if (!nomi || summa == null || !sana) {
       return res.status(400).json({ message: 'Nomi, summa va sana majburiy!' });
     }
 
@@ -56,6 +58,7 @@ const updateRasxod = async (req, res, next) => {
 
     res.status(200).json({ message: 'Rasxod muvaffaqiyatli yangilandi!', rasxod: updatedRasxod });
   } catch (error) {
+    console.error("Update expense error:", error);
     next(error);
   }
 };
@@ -67,12 +70,13 @@ const deleteRasxod = async (req, res, next) => {
 
     const deletedRasxod = await Rasxod.findByIdAndDelete(id);
 
-    if (!deletedRasсhod) {
+    if (!deletedRasxod) {
       return res.status(404).json({ message: 'Rasxod topilmadi!' });
     }
 
     res.status(200).json({ message: 'Rasxod muvaffaqiyatli o‘chirildi!' });
   } catch (error) {
+    console.error("Delete expense error:", error);
     next(error);
   }
 };
